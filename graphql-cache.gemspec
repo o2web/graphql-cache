@@ -24,6 +24,7 @@ Gem::Specification.new do |s|
   s.add_development_dependency 'appraisal'
   s.add_development_dependency 'codeclimate-test-reporter'
   s.add_development_dependency 'mini_cache'
+  s.add_development_dependency 'promise.rb'
   s.add_development_dependency 'pry'
   s.add_development_dependency 'rake',    '~> 10.0'
   s.add_development_dependency 'rspec',   '~> 3.0'
