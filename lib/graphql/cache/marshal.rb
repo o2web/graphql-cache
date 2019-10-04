@@ -50,10 +50,23 @@ module GraphQL
       # @param config [Hash] The middleware resolution config hash
       def write(config)
         resolved = yield
+
         document = Deconstructor[resolved].perform
 
-        cache.write(key, document, expires_in: expiry(config))
+        with_resolved_document(document) do |resolved_document|
+          cache.write(key, resolved_document, expires_in: expiry(config))
+        end
+
         resolved
+      end
+
+      # @private
+      def with_resolved_document(document)
+        if self.class.const_defined?('Promise') && document.is_a?(Promise)
+          document.then { |promise_value| yield promise_value }
+        else
+          yield document
+        end
       end
 
       # @private
