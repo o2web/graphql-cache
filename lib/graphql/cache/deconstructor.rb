@@ -18,7 +18,7 @@ module GraphQL
       # have been chosen because it is easy to use the class
       # names of the possible object types for this purpose.
       #
-      # @return [String] 'array' or 'collectionproxy' or 'relation' or 'promise'
+      # @return [String] 'array' or 'collectionproxy' or 'relation' or 'lazy'
       attr_accessor :method
 
       # Initializer helper that generates a valid `method` string based
@@ -44,7 +44,7 @@ module GraphQL
       #
       # @return [Object] A value suitable for writing to cache OR a promise
       def perform
-        if method == 'promise'
+        if method == 'lazy'
           raw.then { |resolved_raw| self.class[resolved_raw].perform }
         elsif %(array collectionproxy).include? method
           deconstruct_array(raw)

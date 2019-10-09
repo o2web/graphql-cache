@@ -20,14 +20,15 @@ module GraphQL
             expect(subject.perform).to eq raw.object
           end
 
-          context 'when object is a promise that responds to object' do
-            let(:raw) { Promise.resolve(double('Raw', object: 'foo')) }
-            let(:method) { 'promise' }
+          context 'when obnject is a Graphql::Execution::Lazy whose value responsds to object' do
+            let(:raw) { GraphQL::Execution::Lazy.new { double('Raw', object: 'foo') } }
+            let(:method) { 'lazy' }
 
-            it 'should return a promise that resolves to raw.object' do
-              subject.perform.then do |resolved|
-                expect(resolved).to eq raw.object
-              end
+            it 'should return a Lazy that resolves to raw.object' do
+              result = subject.perform
+
+              expect(result.class).to be(GraphQL::Execution::Lazy)
+              expect(result.value).to eq 'foo'
             end
           end
         end
@@ -63,11 +64,10 @@ module GraphQL
             end
 
             it 'should return a promise that resolves to an array of the inner objects' do
-              puts subject.perform
+              result = subject.perform
 
-              subject.perform.then do |resolved|
-                expect(resolved).to eq [1, 2, 3]
-              end
+              expect(result.class).to be(Promise)
+              expect(result.value).to eq [1, 2, 3]
             end
           end
         end
@@ -102,14 +102,15 @@ module GraphQL
             expect(subject.perform).to eq [1,2,3]
           end
 
-          context 'when raw is a promise that resolves to a subclass of Graphql::Relay::BaseConnection' do
-            let(:raw) { Promise.resolve(GraphQL::Relay::BaseConnection.new(nodes, [])) }
-            let(:method) { 'promise' }
+          context 'when raw is a GraphQL::Execution::Lazy that resolves to a subclass of Graphql::Relay::BaseConnection' do
+            let(:raw) { GraphQL::Execution::Lazy.new { GraphQL::Relay::BaseConnection.new(nodes, []) } }
+            let(:method) { 'lazy' }
 
-            it 'should return a promise that resolves to a flat array of nodes' do
-              subject.perform.then do |resolved|
-                expect(resolved).to eq [1,2,3]
-              end
+            it 'should return a Laxy that resolves to a flat array of nodes' do
+              result = subject.perform
+
+              expect(result.class).to be(GraphQL::Execution::Lazy)
+              expect(subject.perform.value).to eq [1,2,3]
             end
           end
         end

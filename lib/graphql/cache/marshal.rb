@@ -55,14 +55,15 @@ module GraphQL
 
         with_resolved_document(document) do |resolved_document|
           cache.write(key, resolved_document, expires_in: expiry(config))
-        end
 
-        resolved
+          resolved
+        end
       end
 
       # @private
       def with_resolved_document(document)
-        if self.class.const_defined?('Promise') && document.is_a?(Promise)
+        if document.is_a?(GraphQL::Execution::Lazy) ||
+           self.class.const_defined?('Promise') && document.is_a?(Promise)
           document.then { |promise_value| yield promise_value }
         else
           yield document
